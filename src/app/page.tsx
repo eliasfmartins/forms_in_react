@@ -5,7 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from 'zod'
 
 const createUserFormSchema = z.object({
-  email: z.string().nonempty('O e-mail é obrigatório').email('faltou o @ e o dominio fera'),
+  name: z.string().nonempty('O nome é obrigatório'),
+  email: z.string().nonempty('O e-mail é obrigatório').email('faltou o @ e o dominio fera').toLowerCase(),
   password: z.string().min(6, 'pelomenos 6 caracteres ne meu nobre')
 
 })
@@ -35,6 +36,12 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 gap-10">
       <form action="" className="flex flex-col gap-4 w-full max-w-xs" onSubmit={handleSubmit(createUser)}>
+
+        <div className="flex flex-col gap-4">
+          <label htmlFor="">Nome</label>
+          <input type="text" className="border-zinc-400 shadow-sm rounded h-10 px-3 bg-zinc-800 text-white"{...register('name')} />
+          {errors.name && <span>{errors.name.message}</span>}
+        </div>
 
         <div className="flex flex-col gap-4">
           <label htmlFor="">E-mail</label>
