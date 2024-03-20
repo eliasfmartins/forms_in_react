@@ -5,7 +5,11 @@ import { useForm } from "react-hook-form";
 import { z } from 'zod'
 
 const createUserFormSchema = z.object({
-  name: z.string().nonempty('O nome é obrigatório'),
+  name: z.string().nonempty('O nome é obrigatório').transform(name => {
+    return name.trim().split(' ').map(word => {
+      return word[0].toLocaleUpperCase().concat(word.substring(1))
+    }).join()
+  }),
   email: z.string().nonempty('O e-mail é obrigatório').email('faltou o @ e o dominio fera').toLowerCase(),
   password: z.string().min(6, 'pelomenos 6 caracteres ne meu nobre')
 
