@@ -1,7 +1,7 @@
 'use client'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from 'zod'
 
 const createUserFormSchema = z.object({
@@ -10,8 +10,16 @@ const createUserFormSchema = z.object({
       return word[0].toLocaleUpperCase().concat(word.substring(1))
     }).join()
   }),
-  email: z.string().nonempty('O e-mail é obrigatório').email('faltou o @ e o dominio fera').toLowerCase(),
-  password: z.string().min(6, 'pelomenos 6 caracteres ne meu nobre')
+  email: z.string().nonempty('O e-mail é obrigatório').email('faltou o @ e o dominio fera').toLowerCase()
+    //  refine e uma forma de fazer verificacoes que n estao incluias no zod
+    .refine(email => {
+      return email.endsWith('biscoito.com')
+    }, 'o email precisa ser o meu e.e'),
+  password: z.string().min(6, 'pelomenos 6 caracteres ne meu nobre'),
+  techs: z.array(z.object({
+    title: z.string().min(1, 'nao pode ficar vazio'),
+    knowledge: z.number().min(1).max(100)
+  }))
 
 })
 // schema nada mais e doque uma representacao de uma estrutura de dados
@@ -28,9 +36,18 @@ const createUserFormSchema = z.object({
 type CreateUserFormData = z.infer<typeof createUserFormSchema>
 export default function Home() {
   const [output, setOutput] = useState('')
-  const { register, handleSubmit, formState: { errors } } = useForm<CreateUserFormData>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserFormSchema)
   })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'techs',
+  })
+  function addNewTech() {
+    append({ title: '', knowledge: 0 })
+  }
+
 
   function createUser(data: any) {
     console.log(data)
@@ -54,16 +71,29 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <label htmlFor="">Senha</label>
-          <input type="password" className="border-zinc-400 shadow-sm rounded h-10 px-3 bg-zinc-800 text-white" {...register('password')} />
-          {errors.password && <span>{errors.password.message}</span>}
-        </div>
+          <label htmlFor="" className="flex items-center justify-between">Tecnologias</label>
+          <button onClick={addNewTech} className="">Adicionar</button>
+          {
+            fields.map((field, index) => {
+              return (
+                <div key={field.id}>
+                  <input type="text"
+                    className="border-zinc-400 shadow-sm rounded h-10 px-3 bg-zinc-800 text-white"
+                    {...register(`techs.${index}.title`)} />
 
+                  <input type="number"
+                    className="border-zinc-400 shadow-sm rounded h-10 px-3 bg-zinc-800 text-white"
+                    {...register(`techs.${index}.knowledge`)} />
+                </div>
+              )
+            })
+          }
+        </div>
         <button type="submit" className="bg-emerald-500 rounded font-semibold text-white h-10 hover:bg-emerald-700">Salvar</button>
       </form>
       <pre>
         {output}
       </pre>
-    </main>
+    </main >
   );
 }
