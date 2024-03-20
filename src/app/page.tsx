@@ -20,6 +20,7 @@ const createUserFormSchema = z.object({
     title: z.string().min(1, 'nao pode ficar vazio'),
     knowledge: z.coerce.number().min(1, 'precisa de algo').max(100)
   })).min(2, 'Pelomenos 2 tech ne patrao que isso')
+   
 
 })
 // schema nada mais e doque uma representacao de uma estrutura de dados
@@ -49,7 +50,7 @@ export default function Home() {
   }
 
 
-  function createUser(data: any) {
+  function createUser(data: CreateUserFormData) {
     console.log(data)
     setOutput(JSON.stringify(data, null, 2))
   }
